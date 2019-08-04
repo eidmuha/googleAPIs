@@ -1,0 +1,56 @@
+/* height of hte map */
+#map {
+height: 100%;
+}
+/*Makes the main page fill the window. */
+html, body {
+height: 100%;
+margin: 0;
+padding: 0;
+}
+
+#floating-panel {
+    position: absolute;
+    top: 10px;
+    left: 25%;
+    z-index: 5;
+    background-color: #fff;
+    padding: 5px;
+    border: 1px solid #999;
+    text-align: center;
+    font-family: 'Roboto','sans-serif';
+    line-height: 30px;
+    padding-left: 10px;
+  }
+
+
+/* Chat board CSS */
+.chatBubble {
+    display: flex;
+    justify-content: space-between;
+}
+
+.messageBoard li {
+    display: inline;
+}
+
+.chatTimeStamp {
+    font-size: 0.5em;
+}
+
+.messageSpace {
+    width: 50%;
+    float: left;
+}
+
+/* Navbar CSS */
+
+.nav-item {
+    text-align: right;
+}
+
+nav {
+    color: aliceblue;
+}
+
+
