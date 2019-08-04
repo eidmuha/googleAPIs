@@ -3,6 +3,7 @@ var accountDetails = {};
 var profileSource = '';
 
 function changeDisplayPicture(profileSource) {
+    var singedInLocation = $("#rightbar");
     // Assign variables
     var profileSpot = $('#brandProfileSpot');
     // Create new image jquery element
@@ -17,7 +18,8 @@ function changeDisplayPicture(profileSource) {
     profilePic.attr('id', 'profilePicture');
 
     // Append to profile spot
-    profileSpot.append(profilePic);
+    
+    singedInLocation.prepend(profileSpot.prepend(profilePic));
 }
 
 // On load of app, this function will be called
