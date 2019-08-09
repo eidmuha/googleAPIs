@@ -1,56 +1,74 @@
 /* height of hte map */
 #map {
-height: 100%;
+  height: 100%;
 }
+
 /*Makes the main page fill the window. */
-html, body {
-height: 100%;
-margin: 0;
-padding: 0;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-#floating-panel {
-    position: absolute;
-    top: 10px;
-    left: 25%;
-    z-index: 5;
-    background-color: #fff;
-    padding: 5px;
-    border: 1px solid #999;
-    text-align: center;
-    font-family: 'Roboto','sans-serif';
-    line-height: 30px;
-    padding-left: 10px;
-  }
-
+#description {
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+}
 
 /* Chat board CSS */
 .chatBubble {
-    display: flex;
-    justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .messageBoard li {
-    display: inline;
+  display: inline;
 }
 
 .chatTimeStamp {
-    font-size: 0.5em;
+  font-size: 0.5em;
 }
 
 .messageSpace {
-    width: 50%;
-    float: left;
+  width: 50%;
+  float: left;
+}
+
+.chatArea {
+  border: 1px solid;
+  padding: 10px;
+  margin-top: 5px;
 }
 
 /* Navbar CSS */
 
 .nav-item {
-    text-align: right;
+  text-align: right;
 }
 
 nav {
-    color: aliceblue;
+  color: aliceblue;
 }
 
+#dname {
+  color: blue;
+}
 
+.createMsg {
+  display: none;
+}
+
+/* Important part */
+.modal-dialog {
+  overflow-y: initial !important;
+}
+
+.modal-body {
+  height: 450px;
+  overflow-y: auto;
+}
+.heading-font {
+  color: #fff;
+}

@@ -1,125 +1,201 @@
 var database = firebase.database();
+// Restaurant Variable from
+var restaurantID = restoInfo.id;
 
-var restaurantName = 'Blue Barracudas';
-
-var chatBoard = $('#messageBoard');
-var messageBox = $('#chatInput');
-var messageButton = $('#sendMessage');
-var signOutButton = $('#signOutButton');
+var chatBoard = $("#messageBoard");
+var messageBox = $("#chatInput");
+var messageButton = $("#sendMessage");
+var signOutButton = $("#signOutButton");
+var alertModal = $("#alertModal");
+var pageRestaurantTitle = $("#restaurantName");
+var createBox = $("#displayName");
+var createButton = $("#userName");
+var chatDiv = $(".createMsg");
+var createDiv = $(".createName");
+var userName = "";
+var userID = "";
+var users = [];
 
 // Function List
-// 
+//
+
+function checkForRecord(restoID, restoName) {
+  // If a record isn't found, create it
+  console.log('checking...');
+  database.ref().once('value').then(function(snap){
+    
+    console.log(snap.child('Blue Barracudas').val());
+    
+    // If determined to not have the restaurant place ID. Create the structure with the name as the first nest
+    if (snap.child(restoID).val() == null) {
+      // Create new restaurant record with name nested within
+      database.ref('/' + restoID).set({
+        name: restoName
+      })
+    }
+  })
+  
+}
+
+
 // Renders Message onto chatboard
 function RenderMessage(snap) {
+  // Declare new element variables
+  var chatBubble = $("<li>");
+  var messageSpace = $("<row>");
+  var newMessage = $(
+    `<span><a class="user">${snap.userName}</a> : ${snap.message} </span>`
+  );
+  var timeAdded = $("<span>");
+  var msgDateTime = moment(snap.dateAdded).format("DD/MM/YY h:mm a");
 
-    console.log('Rendering Msg');
+  // Message CSS
+  messageSpace.addClass("messageSpace");
 
-    // Declare new element variables
-    var chatBubble = $('<li>');
-    var messageSpace = $('<row>');
-    var newMessage = $('<span>');
-    var timeAdded = $('<span>');
+  newMessage.addClass("align-left");
+  timeAdded.addClass("align-right chatTimeStamp");
 
-    // Message CSS
-    messageSpace.addClass('messageSpace');
+  chatBubble.addClass("chatBubble");
 
-    newMessage.addClass('align-left');
-    timeAdded.addClass('align-right chatTimeStamp');
+  // Assign snap values for message
+  timeAdded.text(msgDateTime);
+  // timeAdded.text(new Date(snap.dateAdded));
 
-    chatBubble.addClass('chatBubble');
+  // Append both message and time added to the chatbubble
+  chatBubble.append(newMessage);
+  chatBubble.append(timeAdded);
 
-    // Assign snap values for message
-    newMessage.text(snap.message);
-    timeAdded.text(new Date(snap.dateAdded));
+  // Append the chat bubble to the board
+  chatBoard.append(chatBubble);
 
-    // Append both message and time added to the chatbubble
-    chatBubble.append(newMessage);
-    chatBubble.append(timeAdded);
-
-    // Append the chat bubble to the board
-    chatBoard.append(chatBubble);
+  if (accountDetails.uid === snap.userID) {
+    newMessage.css("color", "blue");
+    $(".user").css("color", "black");
+  } else {
+    newMessage.css("color", "green");
+    $(".user").css("color", "black");
+  }
 }
 
 // Event listeners
-// 
-// Message Button 
-messageButton.on('click', function (event) {
-    // Prevent default form submission behavior
-    event.preventDefault();
-
-    // If the user is logged in, & has a user id then allow them to message
-    if (accountDetails.uid != null) {
-        // Push a new message to the restaurantName reference
-        database.ref('/' + restaurantName).push({
-            // Push the message
-            message: messageBox.val(),
-            // & a timestamp for ordering later
-            dateAdded: firebase.database.ServerValue.TIMESTAMP,
-            // User ID
-            userID: accountDetails.uid
-        }, function (error) {
-            if (error) {
-                // The write failed...
-                console.log(error);
-            } else {
-                // Data saved successfully!
-                console.log('Message sent successfully!');
-                // Clear message box
-                messageBox.val('');
-            }
-        });
-        // Failed to message due to lack of user credentials
-    } else {
-        console.log('Failed to retrieve uid');
-        // TODO: make a MODAL that will inform the user why they couldn't login with a close button
-        // 
-
-
-    }
-
-
-})
-//   Database listeners
-// 
-// When a child is added within the restaurant database reference
-database.ref('/' + restaurantName)
-    .endAt()
-    // Limit to the last item
-    .limitToLast(1)
-    // When child is added
-    .on('child_added', function (snap) {
-        console.log('child added');
-
-        // Render the child that was added 
-        RenderMessage(snap.val());
-    });
-
-// Make user sign out
-signOutButton.on('click', function () {
-    // Sign out from Firebase
-    firebase.auth().signOut();
+//
+// Create Button
+createButton.on("click", function (event) {
+  // Prevent default behavior
+  event.preventDefault();
+  // If account id is found to be null (user is not logged in)
+  if (accountDetails.uid != null) {
+    userName = createBox.val();
+    userID = accountDetails.uid;
+    database
+      .ref("/" + restaurantID + "/users")
+      .child(userID)
+      .set({
+        dateAdded: firebase.database.ServerValue.TIMESTAMP,
+        userName: userName
+      });
+    createBox.val("");
+    createDiv.hide();
+    chatDiv.show();
+  } else {
+    // Shows Alert modal informing user requirement of Google login to post
+    alertModal.show();
+  }
 });
 
+// Message Button
+messageButton.on("click", function (event) {
+  // Prevent default form submission behavior
+  event.preventDefault();
+  var dateAdded = moment().unix();
+  console.log(dateAdded);
+  database
+    .ref("/" + restaurantID + "/thread")
+    .child(dateAdded)
+    .set({
+        // Push the message
+        message: messageBox.val(),
+        // & a timestamp for ordering later
+        dateAdded: firebase.database.ServerValue.TIMESTAMP,
+        // User ID
+        userName: userName,
+        userID: accountDetails.uid
+      },
+      function (error) {
+        if (error) {
+          // The write failed...
+        } else {
+          // Data saved successfully!
+          // Clear message box
+          messageBox.val("");
+        }
+      }
+    );
+});
+//   Database listeners
+//
+// When a child is added within the restaurant database reference
+database
+  .ref("/" + restaurantID + "/thread")
+  .endAt()
+  // Limit to the last item
+  .limitToLast(1)
+  // When child is added
+  .on("child_added", function (snap) {
+    // Render the child that was added
+    RenderMessage(snap.val());
+
+
+    // TODO: Create way to keep the modal body scrolled to the bottom
+  });
+
+// Chat Button event listener to display Modal for chatboard
+$(".chat-button").on("click", function () {
+  // Show the modal
+  $("#chatModal").modal("show");
+  console.log("click");
+  console.log('name: ' + restoInfo.name);
+  console.log('resto id: ' + restoInfo.id);
+
+  // Assign restaurant name to title of window
+  $('#restaurantName').text(restoInfo.name);
+
+  // Check for record and create if not available
+  checkForRecord(restoInfo.id, restoInfo.name);
+
+});
+
+// Make user sign out when they click on the sign out Button
+signOutButton.on("click", function () {
+  // Sign out from Firebase
+  firebase.auth().signOut();
+});
+
+// Event listener for clicks on all buttons in Modal: clicks will close modal
+$(".modal button").on("click", function () {
+  // Hide modal
+  alertModal.hide();
+});
 
 // Arguments begin here
-// 
+//
 // When page is loaded
 $(document).ready(function () {
-
-    var ref = database.ref('/' + restaurantName).orderByChild('dateAdded');
-
-    // Take a snapshot and build the message board from the snap
-    ref.once('value', function (snap) {
-        // Clear current board
-        chatBoard.empty();
-
-        // With returned snapshot, iterate through each key passing to render message
-        for (key in snap.val()) {
-            // Use RenderMessage to print messages
-            RenderMessage(snap.val()[key]);
-        }
-    });
+  // Set parameters for database query
+  var ref = database
+    .ref("/" + restaurantID + "/thread")
+    .orderByChild("dateAdded");
 
 
+  // Take a snapshot and build the message board from the snap
+  ref.once("value", function (snap) {
+    // Clear current board
+    chatBoard.empty();
 
+    // With returned snapshot, iterate through each key passing to render message
+    for (key in snap.val()) {
+      // Use RenderMessage to print messages
+      RenderMessage(snap.val()[key]);
+    }
+  });
 });
